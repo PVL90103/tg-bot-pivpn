@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  tg_bot_pivpn:
+    build: .
+    container_name: tg_bot_pivpn
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+#      - ADMIN_IDS=${ADMIN_IDS}
+    volumes:
+      - ./data:/app/data
+    network_mode: "host"
