@@ -2,7 +2,6 @@ import logging
 from aiogram import BaseMiddleware
 from aiogram.types import Update, Message
 
-# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -20,7 +19,6 @@ class LoggingMiddleware(BaseMiddleware):
         """
         try:
             logger.info(f"Получено событие: {event}")
-            # Передаём управление следующему обработчику
             result = await handler(event, data)
             logger.info(f"Обработано событие: {event.update_id}, результат: {result}")
             return result

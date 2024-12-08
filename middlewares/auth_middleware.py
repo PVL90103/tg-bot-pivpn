@@ -1,21 +1,24 @@
 from aiogram import BaseMiddleware
-from aiogram.types import Message
+from aiogram.types import Update
 from typing import Callable, Dict, Any
+from middlewares.logging_middleware import logger
+
 
 class AuthMiddleware(BaseMiddleware):
     def __init__(self, admin_ids: list[int]):
         super().__init__()
         self.admin_ids = admin_ids
 
-    async def __call__(self, handler: Callable, event: Message, data: Dict[str, Any]):
+    async def __call__(self, handler: Callable, event: Update, data: Dict[str, Any]):
         """
         Проверяет, является ли пользователь администратором.
         """
-        if isinstance(event, Message):
-            user_id = event.from_user.id
+        if event.message:
+            user_id = event.message.from_user.id
+            logger.info(f"Пользователь {user_id} пытается выполнить команду.")
             if user_id not in self.admin_ids:
-                await event.reply("У вас нет прав для использования этого бота.")
-                return  # Пропускаем обработку, если пользователь не администратор
+                logger.warning(f"Доступ запрещён для пользователя {user_id}.")
+                await event.message.reply(f"У вас нет прав для использования этого бота. Ваш user_id: {user_id}")
+                return
 
-        # Передаём управление следующему обработчику
         return await handler(event, data)
