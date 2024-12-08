@@ -1,3 +1,4 @@
 tg-bot/
 venv/
 .env
+*.log
