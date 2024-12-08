@@ -1,7 +1,6 @@
 import os
 
 import asyncio
-import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from middlewares import AuthMiddleware, LoggingMiddleware
@@ -26,8 +25,8 @@ admin_ids = ADMIN_IDS.split(',')
 admin_ids_int = [int(id) for id in admin_ids]
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-dp.middleware.setup(AuthMiddleware(admin_ids=admin_ids_int))
-dp.middleware.setup(LoggingMiddleware())
+dp.update.middleware(AuthMiddleware(admin_ids=admin_ids_int))
+dp.update.middleware(LoggingMiddleware())
 
 # Хэндлер на команду /start
 @dp.message(Command("start"))
