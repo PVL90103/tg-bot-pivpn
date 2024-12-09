@@ -2,8 +2,11 @@ import os
 import asyncio
 import re
 
+import qrcode
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command, CommandObject
+from aiogram.types import FSInputFile
+
 from middlewares import AuthMiddleware, LoggingMiddleware
 from dotenv import load_dotenv
 from prettytable import PrettyTable
@@ -219,10 +222,23 @@ async def cmd_qr(message: types.Message, command: CommandObject):
                 await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
                 return
 
-            await message.reply(f"<b>Включение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
+            config = stdout.decode().strip()
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(config)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
+            img.save("qrcode.png")
+            image = FSInputFile("qrcode.png")
+
+            await message.answer_photo(image, caption="QR code для подключения")
 
         else:
-            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /on.")
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /qr.")
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
 
