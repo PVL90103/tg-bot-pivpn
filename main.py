@@ -42,7 +42,7 @@ async def cmd_clients(message: types.Message):
         if result.returncode == 0:
             output = result.stdout.strip()
             if output:
-                await message.reply(f"<b>Список конфигураций:</b>\n<pre>{output}</pre>", parse_mode="HTML")
+                await message.reply(f"<b>Список конфигураций:</b>\n<pre>{output}</pre>", parse_mode="Markdown")
             else:
                 await message.reply("Нет доступных конфигураций.")
         else:
