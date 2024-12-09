@@ -1,12 +1,12 @@
 import os
-
 import asyncio
-import subprocess
+# import subprocess
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from middlewares import AuthMiddleware, LoggingMiddleware
 from dotenv import load_dotenv
+from prettytable import PrettyTable
 
 
 #TODO: Создание нового VPN-пользователя /add <username>
@@ -37,16 +37,62 @@ async def cmd_start(message: types.Message):
 @dp.message(Command("clients"))
 async def cmd_clients(message: types.Message):
     try:
-        result = subprocess.run(["pivpn", "-c"], capture_output=True, text=True)
+        process = await asyncio.create_subprocess_shell(
+            "pivpn clients",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
 
-        if result.returncode == 0:
-            output = result.stdout.strip()
-            if output:
-                await message.reply(f"<b>Список конфигураций:</b>\n<pre>{output}</pre>", parse_mode="Markdown")
-            else:
-                await message.reply("Нет доступных конфигураций.")
+        if process.returncode != 0:
+            await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+            return
+
+        output = stdout.decode().strip()
+        lines = output.splitlines()
+
+        connected_clients = []
+        disabled_clients = []
+        section = None
+
+        for line in lines:
+            if line.startswith("::: Connected Clients List :::"):
+                section = "connected"
+            elif line.startswith("::: Disabled clients :::"):
+                section = "disabled"
+            elif section == "connected" and not line.startswith(":::") and line.strip():
+                connected_clients.append(line)
+            elif section == "disabled" and not line.startswith(":::") and line.strip():
+                disabled_clients.append(line)
+
+        connected_table = PrettyTable()
+        connected_table.field_names = ["Name", "Remote IP", "Virtual IP", "Bytes Received", "Bytes Sent", "Last Seen"]
+
+        for client in connected_clients:
+            columns = client.split()
+            if len(columns) >= 6:
+                name, remote_ip, virtual_ip, bytes_received, bytes_sent, *last_seen = columns
+                last_seen = " ".join(last_seen)
+                connected_table.add_row([name, remote_ip, virtual_ip, bytes_received, bytes_sent, last_seen])
+
+        disabled_table = PrettyTable()
+        disabled_table.field_names = ["Name"]
+
+        for client in disabled_clients:
+            disabled_table.add_row([client.strip()])
+
+        response = ""
+        if connected_clients:
+            response += f"<b>Connected Clients:</b>\n<pre>{connected_table}</pre>\n\n"
         else:
-            await message.reply("Ошибка при выполнении команды `pivpn -c`.\nПроверьте настройки.")
+            response += "<b>Connected Clients:</b>\n<pre>Нет активных клиентов</pre>\n\n"
+
+        if disabled_clients:
+            response += f"<b>Disabled Clients:</b>\n<pre>{disabled_table}</pre>"
+        else:
+            response += "<b>Disabled Clients:</b>\n<pre>Нет отключенных клиентов</pre>"
+
+        await message.reply(response, parse_mode="HTML")
 
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
