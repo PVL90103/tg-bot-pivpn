@@ -1,5 +1,7 @@
 import os
 import asyncio
+import re
+
 # import subprocess
 
 from aiogram import Bot, Dispatcher, types
@@ -28,6 +30,9 @@ dp = Dispatcher()
 dp.update.middleware(AuthMiddleware(admin_ids=admin_ids_int))
 dp.update.middleware(LoggingMiddleware())
 
+def remove_escape_sequences(text):
+    return re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
+
 # Хэндлер на команду /start
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
@@ -48,7 +53,7 @@ async def cmd_clients(message: types.Message):
             await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
             return
 
-        output = stdout.decode().strip()
+        output = remove_escape_sequences(stdout.decode().strip())
         lines = output.splitlines()
 
         connected_clients = []
@@ -58,9 +63,9 @@ async def cmd_clients(message: types.Message):
         print(lines)
 
         for line in lines:
-            if line.startswith("::: Connected Clients List :::"):
+            if "::: Connected Clients List :::" in line:
                 section = "connected"
-            elif line.startswith("::: Disabled clients :::"):
+            elif "::: Disabled clients :::" in line:
                 section = "disabled"
             elif section == "connected" and not line.startswith(":::") and line.strip():
                 connected_clients.append(line)
