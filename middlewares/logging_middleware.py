@@ -3,7 +3,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import Update, Message
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.FileHandler("bot.log"),  # Запись логов в файл
