@@ -6,19 +6,18 @@ import qrcode
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command, CommandObject
 from aiogram.types import FSInputFile
-
 from middlewares import AuthMiddleware, LoggingMiddleware
 from dotenv import load_dotenv
 from prettytable import PrettyTable
 
 
 #TODO: Получение .conf файла /get <username>
-#TODO: Отправка QR-кода для подключения /qr <username>
 #TODO: Получение информации по используемому трафику /statistics
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 ADMIN_IDS = os.getenv('ADMIN_IDS')
+CONFIG_DIR = os.getenv('CONFIG_DIR')
 
 admin_ids = ADMIN_IDS.split(',')
 admin_ids_int = [int(id) for id in admin_ids]
@@ -212,7 +211,7 @@ async def cmd_qr(message: types.Message, command: CommandObject):
         if args and re.match("^[a-zA-Z0-9]+$", args):
 
             process = await asyncio.create_subprocess_shell(
-                f"cat /etc/wireguard/configs/{args}.conf",
+                f"cat {CONFIG_DIR}/{args}.conf",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
@@ -241,6 +240,29 @@ async def cmd_qr(message: types.Message, command: CommandObject):
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /qr.")
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
+
+# Хэндлер на команду /get
+@dp.message(Command("get"))
+async def cmd_get(message: types.Message, command: CommandObject):
+    try:
+        args = command.args
+
+        if args and re.match("^[a-zA-Z0-9]+$", args):
+
+            config_file = f"{CONFIG_DIR}\{args}.conf"
+            if not os.path.exists(config_file):
+                await message.reply(f"Файл конфигурации для клиента {args} не найден.")
+                return
+
+            with open(config_file, "rb") as file:
+                await message.reply_document(file, caption=f"Конфигурация для {args}")
+
+        else:
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /get.")
+    except Exception as e:
+        await message.reply(f"Произошла ошибка: {e}")
+
+
 
 async def main():
     await dp.start_polling(bot)
