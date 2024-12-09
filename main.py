@@ -81,6 +81,9 @@ async def cmd_clients(message: types.Message):
         for client in disabled_clients:
             disabled_table.add_row([client.strip()])
 
+        print(connected_clients)
+        print(disabled_clients)
+
         response = ""
         if connected_clients:
             response += f"<b>Connected Clients:</b>\n<pre>{connected_table}</pre>\n\n"
