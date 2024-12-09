@@ -32,3 +32,5 @@ run: venv
 clean:
 	@rm -rf $(VENV_DIR) __pycache__ *.pyc *.pyo
 	@echo "[INFO] Виртуальное окружение и временные файлы удалены"
+
+start: venv install run
