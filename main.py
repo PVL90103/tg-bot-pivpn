@@ -200,6 +200,32 @@ async def cmd_on(message: types.Message, command: CommandObject):
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
 
+# Хэндлер на команду /qr
+@dp.message(Command("qr"))
+async def cmd_qr(message: types.Message, command: CommandObject):
+    try:
+        args = command.args
+
+        if args and re.match("^[a-zA-Z0-9]+$", args):
+
+            process = await asyncio.create_subprocess_shell(
+                f"cat /etc/wireguard/configs/{args}.conf",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+
+            if process.returncode != 0:
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+                return
+
+            await message.reply(f"<b>Включение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
+
+        else:
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /on.")
+    except Exception as e:
+        await message.reply(f"Произошла ошибка: {e}")
+
 async def main():
     await dp.start_polling(bot)
 
