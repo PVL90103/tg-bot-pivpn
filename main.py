@@ -2,8 +2,6 @@ import os
 import asyncio
 import re
 
-# import subprocess
-
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from middlewares import AuthMiddleware, LoggingMiddleware
@@ -110,7 +108,15 @@ async def cmd_clients(message: types.Message):
 # Хэндлер на команду /add
 @dp.message(Command("add"))
 async def cmd_add(message: types.Message):
-    await message.reply("Add")
+    try:
+        args = message.get_args()
+
+        if args:
+            await message.reply(f"Добавлено: {args}")
+        else:
+            await message.reply("Пожалуйста, укажите аргумент после команды /add.")
+    except Exception as e:
+        await message.reply(f"Произошла ошибка: {e}")
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
