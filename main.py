@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 #TODO: Удаление существующего VPN-пользователя /remove <username>
 #TODO: Отключение пользователя /off
 #TODO: Включение пользователя /on
-#TODO: Удаление существующего VPN-пользователя /remove <username>
 #TODO: Получение .conf файла /get <username>
 #TODO: Отправка QR-кода для подключения /qr <username>
 #TODO: Получение информации по используемому трафику /statistics
@@ -47,7 +46,7 @@ async def cmd_clients(message: types.Message):
             else:
                 await message.reply("Нет доступных конфигураций.")
         else:
-            await message.reply("Ошибка при выполнении команды `pivpn -l`.\nПроверьте настройки.")
+            await message.reply("Ошибка при выполнении команды `pivpn -c`.\nПроверьте настройки.")
 
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
