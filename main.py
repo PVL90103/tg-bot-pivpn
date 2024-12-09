@@ -3,7 +3,7 @@ import asyncio
 import re
 
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
+from aiogram.filters.command import Command, CommandObject
 from middlewares import AuthMiddleware, LoggingMiddleware
 from dotenv import load_dotenv
 from prettytable import PrettyTable
@@ -58,8 +58,6 @@ async def cmd_clients(message: types.Message):
         disabled_clients = []
         section = None
 
-        print(lines)
-
         for line in lines:
             if "::: Connected Clients List :::" in line:
                 section = "connected"
@@ -86,9 +84,6 @@ async def cmd_clients(message: types.Message):
         for client in disabled_clients:
             disabled_table.add_row([client.strip()])
 
-        print(connected_clients)
-        print(disabled_clients)
-
         response = ""
         if connected_clients:
             response += f"<b>Connected Clients:</b>\n<pre>{connected_table}</pre>\n\n"
@@ -107,14 +102,28 @@ async def cmd_clients(message: types.Message):
 
 # Хэндлер на команду /add
 @dp.message(Command("add"))
-async def cmd_add(message: types.Message):
+async def cmd_add(message: types.Message, command: CommandObject):
     try:
-        args = message.get_args()
+        args = command.args
 
-        if args:
-            await message.reply(f"Добавлено: {args}")
+        if args and re.match("^[a-zA-Z]+$", args):
+
+            process = await asyncio.create_subprocess_shell(
+                f"pivpn add -n {args}",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+
+            if process.returncode != 0:
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+                return
+
+
+            await message.reply(f"<b>Добавлено: {args}</b>\n<pre>{stdout.decode().strip()}</pre>")
+
         else:
-            await message.reply("Пожалуйста, укажите аргумент после команды /add.")
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /add.")
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
 
