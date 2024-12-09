@@ -9,10 +9,6 @@ from dotenv import load_dotenv
 from prettytable import PrettyTable
 
 
-#TODO: Создание нового VPN-пользователя /add <username>
-#TODO: Удаление существующего VPN-пользователя /remove <username>
-#TODO: Отключение пользователя /off
-#TODO: Включение пользователя /on
 #TODO: Получение .conf файла /get <username>
 #TODO: Отправка QR-кода для подключения /qr <username>
 #TODO: Получение информации по используемому трафику /statistics
@@ -116,18 +112,94 @@ async def cmd_add(message: types.Message, command: CommandObject):
             stdout, stderr = await process.communicate()
 
             if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}", parse_mode="HTML")
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
                 return
 
-
-            await message.reply(f"<b>Добавлено: {args}</b>\n<pre>{stdout.decode().strip()}</pre>")
+            await message.reply(f"<b>Добавлено: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /add.")
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
 
-# Запуск процесса поллинга новых апдейтов
+# Хэндлер на команду /remove
+@dp.message(Command("remove"))
+async def cmd_remove(message: types.Message, command: CommandObject):
+    try:
+        args = command.args
+
+        if args and re.match("^[a-zA-Z]+$", args):
+
+            process = await asyncio.create_subprocess_shell(
+                f"pivpn remove {args} -y",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+
+            if process.returncode != 0:
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+                return
+
+            await message.reply(f"<b>Удаление конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
+
+        else:
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /remove.")
+    except Exception as e:
+        await message.reply(f"Произошла ошибка: {e}")
+
+# Хэндлер на команду /off
+@dp.message(Command("off"))
+async def cmd_off(message: types.Message, command: CommandObject):
+    try:
+        args = command.args
+
+        if args and re.match("^[a-zA-Z]+$", args):
+
+            process = await asyncio.create_subprocess_shell(
+                f"pivpn off {args} -y",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+
+            if process.returncode != 0:
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+                return
+
+            await message.reply(f"<b>Отключение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
+
+        else:
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /off.")
+    except Exception as e:
+        await message.reply(f"Произошла ошибка: {e}")
+
+# Хэндлер на команду /on
+@dp.message(Command("on"))
+async def cmd_on(message: types.Message, command: CommandObject):
+    try:
+        args = command.args
+
+        if args and re.match("^[a-zA-Z]+$", args):
+
+            process = await asyncio.create_subprocess_shell(
+                f"pivpn on {args} -y",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+
+            if process.returncode != 0:
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+                return
+
+            await message.reply(f"<b>Включение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
+
+        else:
+            await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /on.")
+    except Exception as e:
+        await message.reply(f"Произошла ошибка: {e}")
+
 async def main():
     await dp.start_polling(bot)
 
