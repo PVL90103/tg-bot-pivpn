@@ -249,7 +249,7 @@ async def cmd_get(message: types.Message, command: CommandObject):
 
         if args and re.match("^[a-zA-Z0-9]+$", args):
 
-            config_file = f"{CONFIG_DIR}\{args}.conf"
+            config_file = f"{CONFIG_DIR}/{args}.conf"
             if not os.path.exists(config_file):
                 await message.reply(f"Файл конфигурации для клиента {args} не найден.")
                 return
