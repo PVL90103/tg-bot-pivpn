@@ -55,6 +55,8 @@ async def cmd_clients(message: types.Message):
         disabled_clients = []
         section = None
 
+        print(lines)
+
         for line in lines:
             if line.startswith("::: Connected Clients List :::"):
                 section = "connected"
