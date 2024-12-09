@@ -102,7 +102,7 @@ async def cmd_add(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z]+$", args):
+        if args and re.match("^[a-zA-Z0-9]+$", args):
 
             process = await asyncio.create_subprocess_shell(
                 f"pivpn add -n {args}",
@@ -128,7 +128,7 @@ async def cmd_remove(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z]+$", args):
+        if args and re.match("^[a-zA-Z0-9]+$", args):
 
             process = await asyncio.create_subprocess_shell(
                 f"pivpn remove {args} -y",
@@ -154,7 +154,7 @@ async def cmd_off(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z]+$", args):
+        if args and re.match("^[a-zA-Z0-9]+$", args):
 
             process = await asyncio.create_subprocess_shell(
                 f"pivpn off {args} -y",
@@ -180,7 +180,7 @@ async def cmd_on(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z]+$", args):
+        if args and re.match("^[a-zA-Z0-9]+$", args):
 
             process = await asyncio.create_subprocess_shell(
                 f"pivpn on {args} -y",
