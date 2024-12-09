@@ -263,7 +263,6 @@ async def cmd_get(message: types.Message, command: CommandObject):
         await message.reply(f"Произошла ошибка: {e}")
 
 
-
 async def main():
     await dp.start_polling(bot)
 
