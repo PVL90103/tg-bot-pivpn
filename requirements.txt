@@ -17,4 +17,4 @@ python-dotenv==1.0.1
 typing_extensions==4.12.2
 yarl==1.18.3
 prettytable==3.12.0
-qrcode==8.0
+qrcode[pil]==8.0
