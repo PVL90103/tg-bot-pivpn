@@ -116,7 +116,7 @@ async def cmd_add(message: types.Message, command: CommandObject):
             stdout, stderr = await process.communicate()
 
             if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}", parse_mode="HTML")
                 return
 
 
