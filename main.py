@@ -5,7 +5,7 @@ import re
 import qrcode
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command, CommandObject
-from aiogram.types import FSInputFile
+from aiogram.types import FSInputFile, InputFile
 from middlewares import AuthMiddleware, LoggingMiddleware
 from dotenv import load_dotenv
 from prettytable import PrettyTable
@@ -257,8 +257,9 @@ async def cmd_get(message: types.Message, command: CommandObject):
                 await message.reply(f"Файл конфигурации для клиента {args} не найден.")
                 return
 
-            # with open(config_file, "r") as file:
-            await message.answer_document(config_file, caption=f"Конфигурация для {args}")
+            file = InputFile(config_file)
+
+            await message.reply_document(file, caption=f"Конфигурация для {args}")
 
         else:
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /get.")
