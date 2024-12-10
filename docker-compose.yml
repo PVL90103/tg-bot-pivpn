@@ -12,4 +12,5 @@ services:
       - ./data:/app/data
       - /etc/wireguard:/etc/wireguard
       - /usr/local/bin/pivpn:/usr/local/bin/pivpn
+      - /usr/local/src/pivpn:/usr/local/src/pivpn
     network_mode: "host"
