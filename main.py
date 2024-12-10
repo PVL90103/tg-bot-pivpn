@@ -257,7 +257,7 @@ async def cmd_get(message: types.Message, command: CommandObject):
                 await message.reply(f"Файл конфигурации для клиента {args} не найден.")
                 return
 
-            file = InputFile(config_file)
+            file = FSInputFile(config_file)
 
             await message.reply_document(file, caption=f"Конфигурация для {args}")
 
