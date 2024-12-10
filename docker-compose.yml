@@ -13,4 +13,5 @@ services:
       - /etc/wireguard:/etc/wireguard
       - /usr/local/bin/pivpn:/usr/local/bin/pivpn
       - /usr/local/src/pivpn:/usr/local/src/pivpn
+      - /opt/pivpn:/opt/pivpn
     network_mode: "host"
