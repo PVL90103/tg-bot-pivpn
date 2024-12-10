@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 from prettytable import PrettyTable
 
 
-#TODO: Получение .conf файла /get <username>
 #TODO: Получение информации по используемому трафику /statistics
 #TODO: убрать вывод 1й строки
 #TODO: Скрыть хендлеры
@@ -60,7 +59,9 @@ async def cmd_clients(message: types.Message):
         section = None
 
         for line in lines:
-            if "::: Connected Clients List :::" in line:
+            if "Name" in line and "Remote IP" in line:
+                continue
+            elif "::: Connected Clients List :::" in line:
                 section = "connected"
             elif "::: Disabled clients :::" in line:
                 section = "disabled"
