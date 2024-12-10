@@ -13,6 +13,9 @@ from prettytable import PrettyTable
 
 #TODO: Получение .conf файла /get <username>
 #TODO: Получение информации по используемому трафику /statistics
+#TODO: убрать вывод 1й строки
+#TODO: Скрыть хендлеры
+#TODO: Проверить запуск в контейнере
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -254,8 +257,8 @@ async def cmd_get(message: types.Message, command: CommandObject):
                 await message.reply(f"Файл конфигурации для клиента {args} не найден.")
                 return
 
-            with open(config_file, "rb") as file:
-                await message.reply_document(file, caption=f"Конфигурация для {args}")
+            with open(config_file, "r") as file:
+                await message.answer_document(file, caption=f"Конфигурация для {args}")
 
         else:
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /get.")
