@@ -11,6 +11,8 @@ services:
     volumes:
       - ./data:/app/data
       - /etc/wireguard:/etc/wireguard
+      - /usr/bin/wg:/usr/bin/wg
+      - /usr/bin/wg-quick:/usr/bin/wg-quick
       - /usr/local/bin/pivpn:/usr/local/bin/pivpn
       - /usr/local/src/pivpn:/usr/local/src/pivpn
       - /opt/pivpn:/opt/pivpn
