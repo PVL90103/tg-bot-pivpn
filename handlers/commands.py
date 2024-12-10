@@ -10,7 +10,7 @@ from prettytable import PrettyTable
 
 router = Router()
 
-def remove_escape_sequences(text):
+def remove_escape_sequences(text) -> str:
     '''
     Удаляем все escape-символы
     :param text: Строка
