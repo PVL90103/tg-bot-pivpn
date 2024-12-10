@@ -2,10 +2,9 @@ import os
 import asyncio
 
 from aiogram import Bot, Dispatcher
-from middlewares import AuthMiddleware, LoggingMiddleware
+from middlewares import AuthMiddleware, LoggingMiddleware, ConfigMiddleware
 from dotenv import load_dotenv
 from handlers import help, commands
-from middlewares.config_middleware import ConfigMiddleware
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
