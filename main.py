@@ -257,8 +257,8 @@ async def cmd_get(message: types.Message, command: CommandObject):
                 await message.reply(f"Файл конфигурации для клиента {args} не найден.")
                 return
 
-            with open(config_file, "r") as file:
-                await message.answer_document(file, caption=f"Конфигурация для {args}")
+            # with open(config_file, "r") as file:
+            await message.answer_document(config_file, caption=f"Конфигурация для {args}")
 
         else:
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /get.")
