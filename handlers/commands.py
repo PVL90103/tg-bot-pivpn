@@ -18,6 +18,12 @@ def remove_escape_sequences(text) -> str:
     '''
     return re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
 
+def args_validate(args: str) -> bool:
+    return args and re.match("^[a-zA-Z0-9]+$", args) is not None
+
+# async def run_shell_command(command: str):
+
+
 
 @router.message(Command("clients"))
 async def cmd_clients(message: types.Message):
@@ -89,7 +95,7 @@ async def cmd_add(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z0-9]+$", args):
+        if args_validate(args):
 
             process = await asyncio.create_subprocess_shell(
                 f"pivpn add -n {args}",
