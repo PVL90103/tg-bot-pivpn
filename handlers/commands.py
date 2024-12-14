@@ -39,7 +39,7 @@ async def run_shell_command(cmd: str, message: types.Message):
 @router.message(Command("clients"))
 async def cmd_clients(message: types.Message):
     try:
-        stdout, stderr = run_shell_command("pivpn clients", message)
+        stdout, stderr = await run_shell_command("pivpn clients", message)
 
         output = remove_escape_sequences(stdout.decode().strip())
         lines = output.splitlines()
@@ -98,7 +98,7 @@ async def cmd_add(message: types.Message, command: CommandObject):
         args = command.args
 
         if args_validate(args):
-            stdout, stderr = run_shell_command(f"pivpn add -n {args}", message)
+            stdout, stderr = await run_shell_command(f"pivpn add -n {args}", message)
             await message.reply(f"<b>Добавлено: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
@@ -113,7 +113,7 @@ async def cmd_remove(message: types.Message, command: CommandObject):
         args = command.args
 
         if args_validate(args):
-            stdout, stderr = run_shell_command(f"pivpn remove {args} -y", message)
+            stdout, stderr = await run_shell_command(f"pivpn remove {args} -y", message)
             await message.reply(f"<b>Удаление конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
@@ -127,7 +127,7 @@ async def cmd_off(message: types.Message, command: CommandObject):
         args = command.args
 
         if args_validate(args):
-            stdout, stderr = run_shell_command(f"pivpn off {args} -y", message)
+            stdout, stderr = await run_shell_command(f"pivpn off {args} -y", message)
             await message.reply(f"<b>Отключение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
@@ -141,7 +141,7 @@ async def cmd_on(message: types.Message, command: CommandObject):
         args = command.args
 
         if args_validate(args):
-            stdout, stderr = run_shell_command(f"pivpn on {args} -y", message)
+            stdout, stderr = await run_shell_command(f"pivpn on {args} -y", message)
             await message.reply(f"<b>Включение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
