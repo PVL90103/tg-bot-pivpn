@@ -21,23 +21,25 @@ def remove_escape_sequences(text) -> str:
 def args_validate(args: str) -> bool:
     return args and re.match("^[a-zA-Z0-9]+$", args) is not None
 
-# async def run_shell_command(command: str):
+async def run_shell_command(cmd: str, message: types.Message):
+    process = await asyncio.create_subprocess_shell(
+        f"{cmd}",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
 
+    if process.returncode != 0:
+        await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
+        return
+
+    return stdout, stderr
 
 
 @router.message(Command("clients"))
 async def cmd_clients(message: types.Message):
     try:
-        process = await asyncio.create_subprocess_shell(
-            "pivpn clients",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-
-        if process.returncode != 0:
-            await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
-            return
+        stdout, stderr = run_shell_command("pivpn clients", message)
 
         output = remove_escape_sequences(stdout.decode().strip())
         lines = output.splitlines()
@@ -96,22 +98,12 @@ async def cmd_add(message: types.Message, command: CommandObject):
         args = command.args
 
         if args_validate(args):
-
-            process = await asyncio.create_subprocess_shell(
-                f"pivpn add -n {args}",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await process.communicate()
-
-            if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
-                return
-
+            stdout, stderr = run_shell_command(f"pivpn add -n {args}", message)
             await message.reply(f"<b>Добавлено: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /add.")
+
     except Exception as e:
         await message.reply(f"Произошла ошибка: {e}")
 
@@ -120,19 +112,8 @@ async def cmd_remove(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z0-9]+$", args):
-
-            process = await asyncio.create_subprocess_shell(
-                f"pivpn remove {args} -y",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await process.communicate()
-
-            if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
-                return
-
+        if args_validate(args):
+            stdout, stderr = run_shell_command(f"pivpn remove {args} -y", message)
             await message.reply(f"<b>Удаление конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
@@ -145,19 +126,8 @@ async def cmd_off(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z0-9]+$", args):
-
-            process = await asyncio.create_subprocess_shell(
-                f"pivpn off {args} -y",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await process.communicate()
-
-            if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
-                return
-
+        if args_validate(args):
+            stdout, stderr = run_shell_command(f"pivpn off {args} -y", message)
             await message.reply(f"<b>Отключение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
@@ -170,19 +140,8 @@ async def cmd_on(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z0-9]+$", args):
-
-            process = await asyncio.create_subprocess_shell(
-                f"pivpn on {args} -y",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await process.communicate()
-
-            if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
-                return
-
+        if args_validate(args):
+            stdout, stderr = run_shell_command(f"pivpn on {args} -y", message)
             await message.reply(f"<b>Включение конфига: {args}</b>\n<pre>{stdout.decode().strip()}</pre>", parse_mode="HTML")
 
         else:
@@ -195,33 +154,31 @@ async def cmd_qr(message: types.Message, command: CommandObject, config_dir: str
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z0-9]+$", args):
+        if args_validate(args):
 
-            process = await asyncio.create_subprocess_shell(
-                f"cat {config_dir}/{args}.conf",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await process.communicate()
+            config_file = f"{config_dir}/{args}.conf"
+            try:
+                with open(config_file, 'r') as file:
+                    config = file.read()
 
-            if process.returncode != 0:
-                await message.reply(f"Ошибка при выполнении команды: {stderr.decode().strip()}")
-                return
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(config)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                img.save("qrcode.png")
+                image = FSInputFile("qrcode.png")
 
-            config = stdout.decode().strip()
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,
-                border=4,
-            )
-            qr.add_data(config)
-            qr.make(fit=True)
-            img = qr.make_image(fill_color="black", back_color="white")
-            img.save("qrcode.png")
-            image = FSInputFile("qrcode.png")
+                await message.answer_photo(image, caption="QR code для подключения")
 
-            await message.answer_photo(image, caption="QR code для подключения")
+            except FileNotFoundError:
+                await message.reply(f"Файл {config_file} не найден.")
+            except PermissionError:
+                await message.reply(f"Нет разрешения на чтение файла {config_file}")
 
         else:
             await message.reply("Пожалуйста, укажите имя конфига латиницей и без пробелов после команды /qr.")
@@ -234,7 +191,7 @@ async def cmd_get(message: types.Message, command: CommandObject, config_dir: st
     try:
         args = command.args
 
-        if args and re.match("^[a-zA-Z0-9]+$", args):
+        if args_validate(args):
 
             config_file = f"{config_dir}/{args}.conf"
             if not os.path.exists(config_file):
