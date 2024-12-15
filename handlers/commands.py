@@ -64,9 +64,11 @@ async def cmd_clients(message: types.Message):
         connected_table = PrettyTable()
         connected_table.field_names = ["Name", "Remote IP", "Virtual IP", "Bytes Received", "Bytes Sent", "Last Seen"]
 
+        num_columns = len(connected_table.field_names)
+
         for client in connected_clients:
             columns = client.split()
-            if len(columns) >= 6:
+            if len(columns) >= num_columns:
                 name, remote_ip, virtual_ip, bytes_received, bytes_sent, *last_seen = columns
                 last_seen = " ".join(last_seen)
                 connected_table.add_row([name, remote_ip, virtual_ip, bytes_received, bytes_sent, last_seen])
