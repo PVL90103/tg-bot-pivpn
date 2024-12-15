@@ -20,7 +20,6 @@ async def main():
 
     dp.update.middleware(AuthMiddleware(admin_ids=admin_ids_int))
     dp.update.middleware(LoggingMiddleware())
-    dp.update.middleware(ConfigMiddleware(config_dir=CONFIG_DIR))
 
     dp.include_router(help.router)
     dp.include_router(commands.router)

@@ -7,6 +7,7 @@ from aiogram import  types, Router
 from aiogram.filters.command import Command, CommandObject
 from aiogram.types import FSInputFile
 from prettytable import PrettyTable
+from main import CONFIG_DIR
 
 router = Router()
 
@@ -150,13 +151,13 @@ async def cmd_on(message: types.Message, command: CommandObject):
         await message.reply(f"Произошла ошибка: {e}")
 
 @router.message(Command("qr"))
-async def cmd_qr(message: types.Message, command: CommandObject, config_dir: str):
+async def cmd_qr(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
         if args_validate(args):
 
-            config_file = f"{config_dir}/{args}.conf"
+            config_file = f"{CONFIG_DIR}/{args}.conf"
             try:
                 with open(config_file, 'r') as file:
                     config = file.read()
@@ -187,13 +188,13 @@ async def cmd_qr(message: types.Message, command: CommandObject, config_dir: str
 
 
 @router.message(Command("get"))
-async def cmd_get(message: types.Message, command: CommandObject, config_dir: str):
+async def cmd_get(message: types.Message, command: CommandObject):
     try:
         args = command.args
 
         if args_validate(args):
 
-            config_file = f"{config_dir}/{args}.conf"
+            config_file = f"{CONFIG_DIR}/{args}.conf"
             if not os.path.exists(config_file):
                 await message.reply(f"Файл конфигурации для клиента {args} не найден.")
                 return
