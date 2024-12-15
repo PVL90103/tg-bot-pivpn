@@ -13,6 +13,9 @@ class AuthMiddleware(BaseMiddleware):
         """
         Проверяет, является ли пользователь администратором.
         """
+        if not event.message:
+            return
+
         if event.message:
             user_id = event.message.from_user.id
             logger.info(f"Пользователь {user_id} пытается выполнить команду.")
