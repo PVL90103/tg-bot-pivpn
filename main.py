@@ -2,7 +2,7 @@ import os
 import asyncio
 
 from aiogram import Bot, Dispatcher
-from middlewares import AuthMiddleware, LoggingMiddleware, ConfigMiddleware
+from middlewares import AuthMiddleware, LoggingMiddleware
 from dotenv import load_dotenv
 from handlers import help, commands
 
