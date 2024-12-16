@@ -1,6 +1,7 @@
 import os
 import asyncio
 import re
+from enum import Enum
 
 import qrcode
 from aiogram import  types, Router
@@ -10,6 +11,11 @@ from prettytable import PrettyTable
 from main import CONFIG_DIR
 
 router = Router()
+
+class ClientState(Enum):
+    INIT = "init"
+    CONNECTED = "connected"
+    DISABLED = "disabled"
 
 def remove_escape_sequences(text) -> str:
     '''
@@ -45,47 +51,48 @@ async def cmd_clients(message: types.Message):
         output = remove_escape_sequences(stdout.decode().strip())
         lines = output.splitlines()
 
-        connected_clients = []
-        disabled_clients = []
-        section = None
+        state = ClientState.INIT
+
+        connected_table = PrettyTable()
+        connected_table.field_names = ["Name", "Remote IP", "Virtual IP", "Bytes Received", "Bytes Sent", "Last Seen"]
+
+        disabled_table = PrettyTable()
+        disabled_table.field_names = ["Name"]
+
+        num_columns_connected = len(connected_table.field_names)
+        num_columns_disabled = len(disabled_table.field_names)
+
 
         for line in lines:
             if "Name" in line and "Remote IP" in line:
                 continue
             elif "::: Connected Clients List :::" in line:
-                section = "connected"
+                state = ClientState.CONNECTED
+                continue
             elif "::: Disabled clients :::" in line:
-                section = "disabled"
-            elif section == "connected" and not line.startswith(":::") and line.strip():
-                connected_clients.append(line)
-            elif section == "disabled" and not line.startswith(":::") and line.strip():
-                disabled_clients.append(line)
+                state = ClientState.DISABLED
+                continue
 
-        connected_table = PrettyTable()
-        connected_table.field_names = ["Name", "Remote IP", "Virtual IP", "Bytes Received", "Bytes Sent", "Last Seen"]
-
-        num_columns = len(connected_table.field_names)
-
-        for client in connected_clients:
-            columns = client.split()
-            if len(columns) >= num_columns:
-                name, remote_ip, virtual_ip, bytes_received, bytes_sent, *last_seen = columns
-                last_seen = " ".join(last_seen)
-                connected_table.add_row([name, remote_ip, virtual_ip, bytes_received, bytes_sent, last_seen])
-
-        disabled_table = PrettyTable()
-        disabled_table.field_names = ["Name"]
-
-        for client in disabled_clients:
-            disabled_table.add_row([client.strip()])
+            if line and state == ClientState.CONNECTED:
+                if not line.startswith(":::"):
+                    columns = line.split()
+                    if len(columns) >= num_columns_connected:
+                        name, remote_ip, virtual_ip, bytes_received, bytes_sent, *last_seen = columns
+                        last_seen = " ".join(last_seen)
+                        connected_table.add_row([name, remote_ip, virtual_ip, bytes_received, bytes_sent, last_seen])
+            elif line and state == ClientState.DISABLED:
+                if not line.startswith(":::"):
+                    columns = line.split()
+                    if len(columns) >= num_columns_disabled:
+                        disabled_table.add_row(columns)
 
         response = ""
-        if connected_clients:
+        if connected_table.rows:
             response += f"<b>Connected Clients:</b>\n<pre>{connected_table}</pre>\n\n"
         else:
             response += "<b>Connected Clients:</b>\n<pre>Нет активных клиентов</pre>\n\n"
 
-        if disabled_clients:
+        if disabled_table.rows:
             response += f"<b>Disabled Clients:</b>\n<pre>{disabled_table}</pre>"
         else:
             response += "<b>Disabled Clients:</b>\n<pre>Нет отключенных клиентов</pre>"
