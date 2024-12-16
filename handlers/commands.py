@@ -82,10 +82,7 @@ async def cmd_clients(message: types.Message):
                         connected_table.add_row([name, remote_ip, virtual_ip, bytes_received, bytes_sent, last_seen])
             elif line and state == ClientState.DISABLED:
                 if not line.startswith(":::"):
-                    column = line.split()[0]
-                    columns = line.strip()
-                    print(column)
-                    print(columns)
+                    column = line.split()[1]
                     disabled_table.add_row([column])
 
         response = ""
