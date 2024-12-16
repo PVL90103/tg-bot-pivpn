@@ -83,6 +83,9 @@ async def cmd_clients(message: types.Message):
             elif line and state == ClientState.DISABLED:
                 if not line.startswith(":::"):
                     column = line.split()[0]
+                    columns = line.strip()
+                    print(column)
+                    print(columns)
                     disabled_table.add_row([column])
 
         response = ""
