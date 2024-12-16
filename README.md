@@ -34,6 +34,31 @@ make start
 ```
 4. Создать сервис в systemd
 
+`nano /etc/systemd/system/telegram_bot.service`
+
+Создать файл сервиса. Нужно указать директорию с проектом {PROJECT_DIR}.
+```
+cat > /etc/systemd/system/telegram_bot.service <<EOL
+[Unit]
+Description=Telegram Bot Service
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory={PROJECT_DIR}
+ExecStart=/usr/bin/make run
+Restart=always
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+EOL
+```
+- `systemctl daemon-reload` Перезагружаем systemd
+- `systemctl enable telegram_bot.service` Включаем и запускаем сервис
+- `systemctl start telegram_bot.service`
+- `systemctl status telegram_bot.service` Проверяем статус сервиса
+
 ## Usage
 
 Commands:  
