@@ -1,5 +1,7 @@
 tg-bot/
 venv/
 .env
+.idea
+.mypy_cache
 *.log
 *.png
