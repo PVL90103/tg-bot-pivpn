@@ -2,3 +2,4 @@ tg-bot/
 venv/
 .env
 *.log
+*.png
