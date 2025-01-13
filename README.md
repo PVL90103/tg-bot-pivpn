@@ -1,7 +1,5 @@
 # Telegram Bot Pivpn
 
-Итоговый проект по курсу "Python для инженеров" 2024
-
 Бот для управления WireGuard туннелями на сервере через утилиту PiVPN
 
 ## Technologies
