@@ -26,7 +26,7 @@ def remove_escape_sequences(text) -> str:
     return re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
 
 def args_validate(args: str) -> bool:
-    return args and re.match("^[a-zA-Z0-9]+$", args) is not None
+    return args and re.match("^[a-zA-Z0-9_-]+$", args) is not None
 
 async def run_shell_command(cmd: str, message: types.Message):
     process = await asyncio.create_subprocess_shell(
@@ -54,7 +54,7 @@ async def cmd_clients(message: types.Message):
         state = ClientState.INIT
 
         connected_table = PrettyTable()
-        connected_table.field_names = ["Name", "Remote IP", "Virtual IP", "Bytes Received", "Bytes Sent", "Last Seen"]
+        connected_table.field_names = ["Name", "Virtual IP", "Bytes Received", "Bytes Sent", "Last Seen"]
 
         disabled_table = PrettyTable()
         disabled_table.field_names = ["Name"]
@@ -79,7 +79,7 @@ async def cmd_clients(message: types.Message):
                     if len(columns) >= num_columns_connected:
                         name, remote_ip, virtual_ip, bytes_received, bytes_sent, *last_seen = columns
                         last_seen = " ".join(last_seen)
-                        connected_table.add_row([name, remote_ip, virtual_ip, bytes_received, bytes_sent, last_seen])
+                        connected_table.add_row([name, virtual_ip, bytes_received, bytes_sent, last_seen])
             elif line and state == ClientState.DISABLED:
                 if not line.startswith(":::"):
                     column = line.split()[1]
